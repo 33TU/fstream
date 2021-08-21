@@ -202,7 +202,7 @@ class StreamReader:
         while len(data_buffer) < read_len:
             await self.protocol.wait_data_notify()
 
-        buffer = data_buffer[4:buffer_len]
+        buffer = data_buffer[4:read_len]
         del data_buffer[:read_len]
 
         return buffer
