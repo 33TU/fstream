@@ -1,5 +1,4 @@
-from asyncio import Transport
-import asyncio
+from asyncio import Transport, Future
 from asyncio.exceptions import LimitOverrunError
 from types import coroutine
 from typing import Any, Awaitable, List, Optional, Union
@@ -35,9 +34,9 @@ class BaseStreamProtocol:
         self._exc = None
         self._writing_paused = False
 
-        self._data_future: Optional[asyncio.Future] = None
-        self._drain_future: Optional[asyncio.Future] = None
-        self._close_future: Optional[asyncio.Future] = None
+        self._data_future: Optional[Future] = None
+        self._drain_future: Optional[Future] = None
+        self._close_future: Optional[Future] = None
 
         self.data_buffer = bytearray()
 
