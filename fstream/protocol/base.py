@@ -1,4 +1,5 @@
 from asyncio import Transport
+import asyncio
 from asyncio.exceptions import LimitOverrunError
 from types import coroutine
 from typing import Any, Awaitable, List, Optional, Union
@@ -34,9 +35,9 @@ class BaseStreamProtocol:
         self._exc = None
         self._writing_paused = False
 
-        self._data_future = None
-        self._drain_future = None
-        self._close_future = None
+        self._data_future: Optional[asyncio.Future] = None
+        self._drain_future: Optional[asyncio.Future] = None
+        self._close_future: Optional[asyncio.Future] = None
 
         self.data_buffer = bytearray()
 
@@ -129,10 +130,15 @@ class StreamReader:
         self.protocol = protocol
 
     async def readuntil(self, separator=b'\n', include_delimiter=True, limit=1024*1024) -> bytearray:
+        if self.protocol._exc is not None:
+            raise self.protocol._exc
+
         data_buffer = self.protocol.data_buffer
         sep_len = len(separator)
-        sep_index = data_buffer.find(separator)
+        if sep_len == 0:
+            raise ValueError('Separator should be at least one-byte string')
 
+        sep_index = data_buffer.find(separator)
         while sep_index == -1:
             data_len = len(data_buffer)
             if data_len > limit:
@@ -149,9 +155,18 @@ class StreamReader:
 
         return buffer
 
-    async def read(self, nbytes: int) -> bytearray:
-        if nbytes < 1:
+    async def read(self, nbytes: int) -> Union[bytearray, bytes]:
+        """
+        Read max nbytes about of bytes.
+        Returns bytearray if nbytes > 0 otherwise bytes
+        """
+        if self.protocol._exc is not None:
+            raise self.protocol._exc
+
+        if nbytes < 0:
             raise ValueError('read size has to be greater than zero')
+        elif nbytes == 0:
+            return b''
 
         data_buffer = self.protocol.data_buffer
         buffer_len = len(data_buffer)
@@ -166,9 +181,18 @@ class StreamReader:
 
         return buffer
 
-    async def readexactly(self, nbytes: int) -> bytearray:
-        if nbytes < 1:
-            raise ValueError('readexactly size has to be greater than zero')
+    async def readexactly(self, nbytes: int) -> Union[bytearray, bytes]:
+        """
+        Read exactly nbytes about of bytes.
+        Returns bytearray if nbytes > 0 otherwise bytes
+        """
+        if self.protocol._exc is not None:
+            raise self.protocol._exc
+
+        if nbytes < 0:
+            raise ValueError('readexactly size can not be less than zero')
+        elif nbytes == 0:
+            return b''
 
         data_buffer = self.protocol.data_buffer
 
@@ -185,8 +209,10 @@ class StreamReader:
         Reads length prefixed message from the stream.
         [u32: length | payload bytes ]
         """
+        if self.protocol._exc is not None:
+            raise self.protocol._exc
 
-        if limit < 1:
+        if limit < 0:
             raise ValueError('limit size has to be greater than zero')
 
         data_buffer = self.protocol.data_buffer
