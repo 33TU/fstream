@@ -54,6 +54,8 @@ class BaseStreamProtocol:
             ))
 
     def connection_lost(self, exc) -> None:
+        if self._closed: return
+        
         self._exc = exc
         self._closed = True
 
