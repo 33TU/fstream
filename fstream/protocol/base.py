@@ -130,6 +130,9 @@ class StreamReader:
         self.protocol = protocol
 
     async def readuntil(self, separator=b'\n', include_delimiter=True, limit=1024*1024) -> bytearray:
+        """
+        Read data from the stream until ``separator`` is found.
+        """
         if self.protocol._exc is not None:
             raise self.protocol._exc
 
@@ -157,8 +160,8 @@ class StreamReader:
 
     async def read(self, nbytes: int) -> Union[bytearray, bytes]:
         """
-        Read max nbytes about of bytes.
-        Returns bytearray if nbytes > 0 otherwise bytes
+        Read max ``nbytes`` about of bytes.
+        Returns bytearray if ``nbytes`` > 0 otherwise bytes
         """
         if self.protocol._exc is not None:
             raise self.protocol._exc
@@ -183,8 +186,8 @@ class StreamReader:
 
     async def readexactly(self, nbytes: int) -> Union[bytearray, bytes]:
         """
-        Read exactly nbytes about of bytes.
-        Returns bytearray if nbytes > 0 otherwise bytes
+        Read exactly ``nbytes`` about of bytes.
+        Returns bytearray if ``nbytes`` > 0 otherwise bytes
         """
         if self.protocol._exc is not None:
             raise self.protocol._exc
