@@ -8,6 +8,7 @@ async def main():
 
     while True:
         wmessage = f"Hello. Message number: {counter}".encode()
+        counter += 1
 
         # Send message
         writer.write(wmessage)
