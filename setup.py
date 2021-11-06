@@ -18,7 +18,7 @@ project_urls = {
 
 setup(
     name="fstream",
-    version='0.0.5',
+    version='0.0.6',
     description="Faster async streams for Python.",
     long_description=long_description,
     long_description_content_type="text/markdown",
