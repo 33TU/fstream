@@ -60,18 +60,18 @@ class BaseStreamProtocol:
         self._closed = True
 
         if exc is not None:
-            if self._data_future is not None:
+            if self._data_future is not None and not self._data_future.done():
                 self._data_future.set_exception(exc)
-            if self._drain_future is not None:
+            if self._drain_future is not None and not self._drain_future.done():
                 self._drain_future.set_exception(exc)
-            if self._close_future is not None:
+            if self._close_future is not None and not self._close_future.done():
                 self._close_future.set_exception(exc)
         else:
-            if self._data_future is not None:
+            if self._data_future is not None and not self._data_future.done():
                 self._data_future.set_result(None)
-            if self._drain_future is not None:
+            if self._drain_future is not None and not self._drain_future.done():
                 self._drain_future.set_result(None)
-            if self._close_future is not None:
+            if self._close_future is not None and not self._close_future.done():
                 self._close_future.set_result(None)
 
     def pause_writing(self) -> None:
